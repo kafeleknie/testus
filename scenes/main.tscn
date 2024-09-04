@@ -1,21 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://bpcv4ov510bj3"]
+[gd_scene load_steps=3 format=3 uid="uid://bpcv4ov510bj3"]
 
-[ext_resource type="PackedScene" uid="uid://cfhq2epjkblm3" path="res://scenes/black.tscn" id="1_d86b8"]
-[ext_resource type="PackedScene" uid="uid://djus48f4wcxs3" path="res://scenes/white.tscn" id="2_cwtkm"]
-[ext_resource type="PackedScene" uid="uid://1iw72k78nfk1" path="res://scenes/grey.tscn" id="3_o850x"]
+[ext_resource type="PackedScene" uid="uid://c81m5knmrfesp" path="res://scenes/character_body_2d.tscn" id="1_4bn75"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_2fn18"]
+distance = -104.0
 
 [node name="main" type="Node2D"]
 
-[node name="black" parent="." instance=ExtResource("1_d86b8")]
-position = Vector2(-40, 0)
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
 
-[node name="white" parent="." instance=ExtResource("2_cwtkm")]
-position = Vector2(93, -6)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+shape = SubResource("WorldBoundaryShape2D_2fn18")
 
-[node name="black2" parent="." instance=ExtResource("1_d86b8")]
-position = Vector2(120, 0)
+[node name="CharacterBody2D" parent="." instance=ExtResource("1_4bn75")]
+position = Vector2(-47, 32)
 
-[node name="grey" parent="." instance=ExtResource("3_o850x")]
-
-[node name="grey2" parent="." instance=ExtResource("3_o850x")]
-position = Vector2(80, 0)
+[node name="Camera2D" type="Camera2D" parent="."]
