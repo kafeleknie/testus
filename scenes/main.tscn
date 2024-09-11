@@ -1,7 +1,8 @@
+
 [gd_scene load_steps=4 format=4 uid="uid://bpcv4ov510bj3"]
 
-[ext_resource type="PackedScene" uid="uid://cu6ydbswwtdr1" path="res://scenes/character_body_2d.tscn" id="1_4bn75"]
 [ext_resource type="TileSet" uid="uid://dgrr256cb7e2i" path="res://scenes/TileSetPlatforms.tres" id="2_46bjy"]
+
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_2fn18"]
 distance = -104.0
@@ -12,9 +13,6 @@ distance = -104.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
 shape = SubResource("WorldBoundaryShape2D_2fn18")
-
-[node name="CharacterBody2D" parent="." instance=ExtResource("1_4bn75")]
-position = Vector2(-31, -56)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(35, -79)
