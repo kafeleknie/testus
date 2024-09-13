@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://l6l3mn2gixs8"]
+
+[ext_resource type="Script" path="res://scripts/player/crosshair.gd" id="1_6srgv"]
+
+[node name="Crosshair" type="Node2D"]
+script = ExtResource("1_6srgv")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = 48.0
+offset_top = -8.0
+offset_right = 64.0
+offset_bottom = 8.0
+color = Color(1, 0, 0, 1)

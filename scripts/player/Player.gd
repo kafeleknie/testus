@@ -7,8 +7,8 @@ const MOVE_STRENGTH_IN_AIR: float = 20
 const FRICTION_ON_FLOOR: float = 40
 const FRICTION_IN_AIR: float = 5
 const JUMP_STRENGTH: float = 500
-const COYOTE_TIME = 0.2 # 200 ms 
-const JUMP_BUFFER_TIME = 0.2 # 200 ms 
+const COYOTE_TIME = 0.1 #100ms 
+const JUMP_BUFFER_TIME = 0.1 #100ms 
 
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity");
 
@@ -21,10 +21,7 @@ var on_floor: bool = false
 var coyote_time_counter: float = 0.0
 var jump_buffer_counter:float = 0.0
 
-enum STATES{WALK, RUN, IDLE}
-var state: STATES = STATES.IDLE
-
-func _process(delta: float):
+func _physics_process(delta: float):
 	on_floor = is_on_floor()
 	process_timers(delta)
 	handle_inputs()
