@@ -24,6 +24,35 @@ var jump_buffer_counter:float = 0.0
 enum STATES{WALK, RUN, IDLE}
 var state: STATES = STATES.IDLE
 
+func _process(delta: float):
+	on_floor = is_on_floor()
+	process_timers(delta)
+	handle_inputs()
+	if not on_floor:
+		velocity.y += gravity * delta
+		move_strength = MOVE_STRENGTH_IN_AIR
+		friction = FRICTION_IN_AIR
+	else:
+		move_strength = MOVE_STRENGTH_ON_FLOOR
+		friction = FRICTION_ON_FLOOR
+
+	if direction_vector.x != 0 and abs(velocity.x) <= max_speed:
+		velocity.x += direction_vector.x * move_strength
+	if velocity.x != 0:
+		velocity.x += friction if velocity.x < 0 else -friction
+
+	if abs(velocity.x) < move_strength and direction_vector.x == 0: # nie jestem fanem tej linijki ale bez niej czasami gracz sie nie zatrzymuje
+		velocity.x = 0
+
+	if space_pressed:
+		jump_buffer_counter = JUMP_BUFFER_TIME
+		if coyote_time_counter > 0:
+			jump()
+	if on_floor and jump_buffer_counter > 0:
+		jump()
+
+	move_and_slide()
+
 func handle_inputs():
 	direction_vector = Input.get_vector("left", "right", "up", "down")
 	space_pressed = Input.is_action_pressed("space")
@@ -44,29 +73,3 @@ func jump():
 	coyote_time_counter = 0.0
 	jump_buffer_counter = 0.0
 	velocity.y = -JUMP_STRENGTH
-
-func _process(delta: float):
-	on_floor = is_on_floor()
-	process_timers(delta)
-	handle_inputs()
-	if not on_floor:
-		velocity.y += gravity * delta
-		move_strength = MOVE_STRENGTH_IN_AIR
-		friction = FRICTION_IN_AIR
-	else:
-		move_strength = MOVE_STRENGTH_ON_FLOOR
-		friction = FRICTION_ON_FLOOR
-
-	if direction_vector.x != 0 and abs(velocity.x) <= max_speed:
-		velocity.x += direction_vector.x * move_strength
-	if velocity.x != 0:
-		velocity.x += friction if velocity.x < 0 else -friction
-
-	if space_pressed:
-		jump_buffer_counter = JUMP_BUFFER_TIME
-		if coyote_time_counter > 0:
-			jump()
-	if on_floor and jump_buffer_counter > 0:
-		jump()
-
-	move_and_slide()
