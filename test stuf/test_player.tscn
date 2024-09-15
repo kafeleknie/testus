@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://bw2ewuci03q3k"]
+[gd_scene load_steps=4 format=3 uid="uid://bw2ewuci03q3k"]
 
 [ext_resource type="Script" path="res://test stuf/test_player.gd" id="1_l7yql"]
+[ext_resource type="PackedScene" uid="uid://l6l3mn2gixs8" path="res://scenes/entities/player/Crosshair.tscn" id="2_yfkud"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ld01b"]
 radius = 16.0
@@ -17,3 +18,5 @@ offset_bottom = 16.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_ld01b")
+
+[node name="Crosshair" parent="." instance=ExtResource("2_yfkud")]
