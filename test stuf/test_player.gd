@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 # Constants
-const SPEED: float = 300.0
+const SPEED: float = 100
 const MASS:float = 200
 const JUMP_FORCE: float = -500.0
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
@@ -18,11 +18,12 @@ var angular_velocity: float = 0.0
 var angular_displacement: float = 0.0
 
 func _physics_process(delta: float) -> void:
-	velocity.y = 300
 	if is_hook_attached:
+		velocity.y = 0
 		handle_swinging(delta)
 	else:
-		player_movement(delta)
+		velocity.y += gravity * delta
+	player_movement(delta)
 
 	if Input.is_action_just_pressed("send_hook"):
 		shoot_hook()
@@ -32,7 +33,6 @@ func player_movement(delta: float) -> void:
 	velocity.x = SPEED if Input.is_action_pressed("ui_right") else -SPEED if Input.is_action_pressed("ui_left") else 0
 	if Input.is_action_just_pressed("space") and is_on_floor():
 		velocity.y = JUMP_FORCE
-
 	move_and_slide()
 
 # Shoot the hook
@@ -44,22 +44,30 @@ func shoot_hook() -> void:
 		hook_instance.set_player(self)
 
 func handle_swinging(delta: float) -> void:
-	velocity.x = calculate_tangential_velocity() * abs(cos(angular_displacement)) * delta
+	var distance_to_hook = global_position.distance_to(hook_position)
+	update_angular_velocity(delta)
+	var angular_displacement = (global_position - hook_position).angle_to(Vector2.UP)
+	velocity.x = angular_velocity * -cos(angular_displacement) * delta
+	velocity.y = angular_velocity * sin(angular_displacement) * delta
 	move_and_slide()
 
-# obliczanie prędkości obwodowej...pisanie tego zajeło pół dnia :(
-func calculate_tangential_velocity() -> float:
-	angular_displacement = (global_position - hook_position).angle_to(Vector2.DOWN)
-	var restoring_torque = MASS * 9.6 * length * sin(angular_displacement)
-	angular_velocity += -restoring_torque / length**2
-	return  angular_velocity * length
+func update_angular_velocity(delta) -> void:
+	var angular_displacement = (global_position - hook_position).angle_to(Vector2.UP)
+	var restoring_torque = MASS * gravity * length * sin(-angular_displacement)
+	angular_velocity += (-restoring_torque / (length**2))
 
-# Start swinging when the hook attaches
+func restrict_player_distance(delta: float,distance_to_hook:float) -> void:
+	if distance_to_hook > length :
+		velocity.y = 0
+		var direction = (global_position - hook_position).normalized()
+		var excess_distance = distance_to_hook - length
+		global_position -= direction * excess_distance
+	
+
 func start_swinging(hook_ref: Area2D) -> void:
-	velocity.x += sign(velocity.x) * (velocity.y / length)#nie wiem jak to opisać ale to tak jakby konwertuje prędkość z jaką spadasz na horyzontalną predkość 
 	is_hook_attached = true
 	hook_position = hook_ref.global_position
-	length = global_position.distance_to(hook_position)
+	length = global_position.distance_to(hook_position) + 20
 
 # Detach hook and stop swinging
 func detach_hook() -> void:
