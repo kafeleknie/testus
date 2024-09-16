@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=4 uid="uid://bpcv4ov510bj3"]
 
-[ext_resource type="TileSet" uid="uid://dgrr256cb7e2i" path="res://scenes/TileSetPlatforms.tres" id="2_46bjy"]
+[ext_resource type="TileSet" uid="uid://dgrr256cb7e2i" path="res://scenes/TileSets/TileSetPlatforms.tres" id="2_46bjy"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_2fn18"]
 distance = -104.0

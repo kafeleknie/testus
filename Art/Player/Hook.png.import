@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcx1xw815pgiy"
-path="res://.godot/imported/GrassFlower.png-a81dbf1f1a71a2eecf24fd9d236f87c2.ctex"
+uid="uid://ckovt2mqoe6ab"
+path="res://.godot/imported/Hook.png-171d179dfcf3ce357adfa9d460f28296.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Art/GrassFlower.png"
-dest_files=["res://.godot/imported/GrassFlower.png-a81dbf1f1a71a2eecf24fd9d236f87c2.ctex"]
+source_file="res://Art/Player/Hook.png"
+dest_files=["res://.godot/imported/Hook.png-171d179dfcf3ce357adfa9d460f28296.ctex"]
 
 [params]
 
