@@ -7,15 +7,25 @@ const JUMP_FORCE: float = -500.0
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 # Hook properties
-@export var hook_scene: PackedScene = preload("res://test stuf/Hook.tscn")
+var hook_scene: PackedScene = preload("res://test stuf/Hook.tscn")
 var hook_instance: Area2D
 var is_hook_attached: bool = false
-var hook_position: Vector2
+var hook_position: Vector2 = Vector2.ZERO
 var length: float = 0.0
 
+#swinging properties
+var is_swinging: bool = false
+var angle = 0.0
+var acceleration = 0.0 
+var swing_velocity = 0
+var damping_factor = 0.99
+
 func _physics_process(delta: float) -> void:
-	if is_hook_attached:
+	if is_swinging:
 		handle_swinging(delta)
+	elif is_hook_attached and global_position.distance_to(hook_position) > length:
+		start_swinging()
+		is_swinging = true
 	else:
 		player_movement(delta)
 		velocity.y += gravity * delta
@@ -36,37 +46,37 @@ func shoot_hook() -> void:
 		owner.add_child(hook_instance)
 		hook_instance.set_player(self)
 
-var angle = 0.0
-var acceleration = 0.0 
-var tmp_velocity = 0
-var damping_factor = 0.99
-
 func handle_swinging(delta: float) -> void:
 	angle = (global_position - hook_position).angle_to(Vector2.DOWN)
 	acceleration = -gravity * sin(angle)
-	tmp_velocity += acceleration * delta
-	tmp_velocity *= damping_factor
-	var x_velocity = tmp_velocity * cos(angle)
-	var y_velocity = tmp_velocity * -sin(angle)
-	global_position.x += x_velocity * delta
-	global_position.y += y_velocity * delta
-	
+	swing_velocity += acceleration * delta
+	swing_velocity *= damping_factor
+	var buffer_vector:Vector2 = Vector2(
+		swing_velocity * cos(angle),
+		swing_velocity * -sin(angle)
+	)
+	global_position += buffer_vector * delta
+	restrict_player_movement()
+
+func restrict_player_movement():
 	var direction = global_position - hook_position
 	direction = direction.normalized() * length
 	global_position = hook_position + direction  
 
-func start_swinging(hook_ref: Area2D) -> void:
+func start_swinging() -> void:
+	swing_velocity = sqrt(velocity.x **2 + velocity.y**2) * sign( hook_position.x - global_position.x) 
+	angle = (global_position - hook_position).angle_to(Vector2.DOWN)
+	var buffer_vector: Vector2 = Vector2(
+		swing_velocity * cos(angle),
+		swing_velocity * -sin(angle)
+	)
+	swing_velocity *= cos(velocity.angle_to(buffer_vector))
+	velocity = Vector2.ZERO
+
+func hook_attached(hook_ref: Area2D)->void:
 	is_hook_attached = true
 	hook_position = hook_ref.global_position
-	length = floor(global_position.distance_to(hook_position))
-
-	var buffer_vector:Vector2
-	buffer_vector.x = velocity.x * cos(angle)
-	buffer_vector.y = velocity.y * -sin(angle)
-	angle = (global_position - hook_position).angle_to(Vector2.DOWN)
-	tmp_velocity = sqrt(velocity.x **2 + velocity.y**2) * sign( hook_position.x - global_position.x) * cos(velocity.angle_to(buffer_vector))
-	print(cos(velocity.angle_to(buffer_vector)))
-	velocity = Vector2.ZERO
+	length = floor(global_position.distance_to(hook_position)) + 10
 
 func detach_hook() -> void:
 	is_hook_attached = false

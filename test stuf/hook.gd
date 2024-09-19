@@ -21,7 +21,7 @@ func _on_body_entered(body: Node2D) -> void:
 		is_stuck = true
 		velocity = Vector2.ZERO  
 		if player:
-			player.start_swinging(self)
+			player.hook_attached(self)
 
 func set_player(player_ref: CharacterBody2D) -> void: # te funkcje wywołuje skrypt gracza 
 	player = player_ref
