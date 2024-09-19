@@ -1,8 +1,8 @@
 extends CharacterBody2D
 
 # Constants
-const SPEED: float = 300.0
-const MASS:float = 200
+const SPEED: float = 180.0
+const MASS:float = 10
 const JUMP_FORCE: float = -500.0
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 
@@ -13,31 +13,22 @@ var is_hook_attached: bool = false
 var hook_position: Vector2
 var length: float = 0.0
 
-# Pendulum physics
-var angular_velocity: float = 0.0
-var angular_displacement: float = 0.0
-var previous_position: Vector2
-var acceleration: Vector2
-
 func _physics_process(delta: float) -> void:
 	if is_hook_attached:
 		handle_swinging(delta)
-		velocity.y = 0
 	else:
 		player_movement(delta)
 		velocity.y += gravity * delta
-
 	if Input.is_action_just_pressed("send_hook"):
 		shoot_hook()
 
 # Player movement when not swinging
 func player_movement(delta: float) -> void:
-	velocity.x = SPEED if Input.is_action_pressed("ui_right") else -SPEED if Input.is_action_pressed("ui_left") else 0
+	velocity.x = SPEED if Input.is_action_pressed("ui_right") else -SPEED  if Input.is_action_pressed("ui_left") else 0
 	if Input.is_action_just_pressed("space") and is_on_floor():
 		velocity.y = JUMP_FORCE
 	move_and_slide()
 
-# Shoot the hook
 func shoot_hook() -> void:
 	if not hook_instance:
 		hook_instance = hook_scene.instantiate()
@@ -45,43 +36,38 @@ func shoot_hook() -> void:
 		owner.add_child(hook_instance)
 		hook_instance.set_player(self)
 
+var angle = 0.0
+var acceleration = 0.0 
+var tmp_velocity = 0
+var damping_factor = 0.99
+
 func handle_swinging(delta: float) -> void:
-	var direction = (global_position - hook_position).normalized()
-	global_position = hook_position + direction * length
+	angle = (global_position - hook_position).angle_to(Vector2.DOWN)
+	acceleration = -gravity * sin(angle)
+	tmp_velocity += acceleration * delta
+	tmp_velocity *= damping_factor
+	var x_velocity = tmp_velocity * cos(angle)
+	var y_velocity = tmp_velocity * -sin(angle)
+	global_position.x += x_velocity * delta
+	global_position.y += y_velocity * delta
+	
+	var direction = global_position - hook_position
+	direction = direction.normalized() * length
+	global_position = hook_position + direction  
 
-	var new_position = 2.0 * global_position - previous_position + calculate_acceleration() * delta * delta
-	previous_position = global_position
-	global_position = new_position
-	global_position = hook_position + (global_position - hook_position).normalized() * length
-
-	move_and_slide()
-
-func calculate_acceleration() -> Vector2:
-	angular_displacement = (global_position - hook_position).angle_to(Vector2.DOWN)
-	var restoring_torque = MASS * gravity * length * sin(angular_displacement)
-	var angular_acceleration = -restoring_torque / (MASS * length**2)
-	var tangential_acceleration = angular_acceleration * length
-	return Vector2(
-		tangential_acceleration * cos(angular_displacement),
-		tangential_acceleration * -sin(angular_displacement)
-	)
-
-func on_grab_hook():
-	var hook_to_player = global_position - hook_position
-	var distance_to_hook = hook_to_player.length()
-	var hook_to_player_perpendicular = Vector2(-hook_to_player.y, hook_to_player.x).normalized()
-	var tangential_velocity = velocity.dot(hook_to_player_perpendicular)
-	angular_velocity = tangential_velocity / distance_to_hook 
-	previous_position = global_position
-
-# Start swinging when the hook attaches
 func start_swinging(hook_ref: Area2D) -> void:
-	on_grab_hook()
 	is_hook_attached = true
 	hook_position = hook_ref.global_position
-	length = floor(global_position.distance_to(hook_position)) + 20
+	length = floor(global_position.distance_to(hook_position))
 
-# Detach hook and stop swinging
+	var buffer_vector:Vector2
+	buffer_vector.x = velocity.x * cos(angle)
+	buffer_vector.y = velocity.y * -sin(angle)
+	angle = (global_position - hook_position).angle_to(Vector2.DOWN)
+	tmp_velocity = sqrt(velocity.x **2 + velocity.y**2) * sign( hook_position.x - global_position.x) * cos(velocity.angle_to(buffer_vector))
+	print(cos(velocity.angle_to(buffer_vector)))
+	velocity = Vector2.ZERO
+
 func detach_hook() -> void:
 	is_hook_attached = false
 	if hook_instance:
