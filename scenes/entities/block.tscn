@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://c31p1gc5k4umf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oslgw"]
+size = Vector2(16, 16)
+
+[node name="block" type="StaticBody2D"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_oslgw")
