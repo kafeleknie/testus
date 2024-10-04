@@ -3,9 +3,9 @@ extends CharacterBody2D
 const MAX_WALK_SPEED: float = 200
 const MAX_RUN_SPEED: float = 400
 const MOVE_STRENGTH_ON_FLOOR: float = 80
-const MOVE_STRENGTH_IN_AIR: float = 20
+const MOVE_STRENGTH_IN_AIR: float = 40
 const FRICTION_ON_FLOOR: float = 40
-const FRICTION_IN_AIR: float = 5
+const FRICTION_IN_AIR: float = 10
 const JUMP_STRENGTH: float = 500
 const COYOTE_TIME = 0.1 #100ms 
 const JUMP_BUFFER_TIME = 0.1 #100ms 

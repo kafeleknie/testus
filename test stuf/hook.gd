@@ -15,12 +15,16 @@ func _physics_process(delta: float) -> void:
 	if not is_stuck:
 		position += velocity * delta  
 		rotation = velocity.angle() 
+	else:
+		rotation = 0
+		$RayCast2D.target_position = player.global_position - global_position 
 
 func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"): 
 		is_stuck = true
 		velocity = Vector2.ZERO  
 		if player:
+			$RayCast2D.target_position = player.global_position
 			player.hook_attached(self)
 
 func set_player(player_ref: CharacterBody2D) -> void: # te funkcje wywołuje skrypt gracza 
