@@ -1,11 +1,12 @@
 extends CharacterBody2D
 
 #GLOBAL
-@onready var movement = preload("res://scripts/player/movement.gd").new()
+@onready var BASIC_MOVEMENT = preload("res://scripts/player/basic_movement.gd").new()
 var on_floor: bool = false
 
 #INPUTS
 var direction_vector: Vector2 = Vector2.ZERO
+var last_direction: float = 1
 var space_pressed: bool = false
 var dash_action: bool = false
 var hook_action: bool = false
@@ -23,13 +24,22 @@ func handle_inputs():
 	dash_action = Input.is_action_pressed("dash")
 	hook_action =  Input.is_action_just_pressed("hook_action")
 
+	if direction_vector.x != 0:
+		last_direction = direction_vector.x
+
 func handle_movement(delta:float):
-	movement.process_timers(delta,space_pressed)
-	if movement.update(velocity,on_floor):
-		if not on_floor:
-			movement.apply_gravity(delta)
-		movement.jump()
-		movement.apply_movement(direction_vector.x)
-		if dash_action:
-			movement.dash(direction_vector.x)
-		velocity = movement.velocity
+	handle_basic_movement(delta)
+
+func handle_basic_movement(delta:float):
+	BASIC_MOVEMENT.process_timers(delta,space_pressed)
+	BASIC_MOVEMENT.update(velocity,on_floor)
+	if !on_floor:
+		BASIC_MOVEMENT.apply_gravity(delta)
+	BASIC_MOVEMENT.jump()
+	if dash_action:
+		BASIC_MOVEMENT.dash(last_direction)
+	BASIC_MOVEMENT.apply_movement(direction_vector.x)
+	velocity = BASIC_MOVEMENT.velocity
+
+func handle_advanced_movement(delta: float):
+	pass

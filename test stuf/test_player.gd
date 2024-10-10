@@ -100,7 +100,7 @@ func handle_inputs():
 		max_speed = MAX_RUN_SPEED
 	else:
 		max_speed = MAX_WALK_SPEED
-	if Input.is_action_just_pressed("send_hook"):
+	if Input.is_action_just_pressed("hook_action"):
 		if is_hook_attached:
 			detach_hook()
 		else:
