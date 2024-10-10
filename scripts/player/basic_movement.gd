@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var velocity: Vector2 = Vector2.ZERO
@@ -6,9 +6,9 @@ var on_floor: bool = false
 
 #DEFAULT_MOVEMENT
 const DEFAULT_MAX_SPEED: float = 320
-const DEFAULT_ACCELERATION: float = 60
+const DEFAULT_ACCELERATION: float = 80
 const IN_AIR_ACCELERATION: float = 20
-const DEFAULT_FRICTION: float = 20
+const DEFAULT_FRICTION: float = 40
 const IN_AIR_FRICTION: float = 5
 
 var acceleration: float = DEFAULT_ACCELERATION
@@ -32,9 +32,9 @@ var dash_duration_counter: float = 0
 var dash_cooldown_counter: float = 0
 var dash_direction: float = 0
 
-func update(main_velocity:Vector2 , main_on_floor:bool) -> void:
-	velocity = main_velocity
-	on_floor = main_on_floor
+func update( player_velocity:Vector2 , player_on_floor:bool) -> void:
+	velocity = player_velocity
+	on_floor = player_on_floor
 
 func process_timers(delta: float ,space_pressed: bool) -> void:
 	if jump_buffer_counter > 0:
@@ -57,6 +57,7 @@ func apply_gravity(delta: float ) -> void:
 
 func apply_movement(direction: float) -> void:
 	if is_dashing:
+		velocity.y = 0
 		velocity.x = DEFAULT_DASH_SPEED * dash_direction
 		if dash_duration_counter <= 0:
 			is_dashing = false

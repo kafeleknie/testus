@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 
 @onready var hook_instance= preload("res://test stuf/Hook.tscn").instantiate()
 var is_hook_attached: bool = false
@@ -12,7 +12,6 @@ func shoot_hook(global_position: Vector2) -> void:
 		hook_instance.set_player(self)
 
 func attach_hook(hook_ref: Area2D , global_position: Vector2)->Dictionary:
-	hook_position = hook_ref.global_position
 	length = floor(global_position.distance_to(hook_position))
 	return {
 		hook_position : hook_position,
