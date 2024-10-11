@@ -1,8 +1,9 @@
-extends Node2D
+extends Node
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var velocity: Vector2 = Vector2.ZERO
 var on_floor: bool = false
+var global_position: Vector2 = Vector2.ZERO
 
 #DEFAULT_MOVEMENT
 const DEFAULT_MAX_SPEED: float = 320
@@ -32,7 +33,8 @@ var dash_duration_counter: float = 0
 var dash_cooldown_counter: float = 0
 var dash_direction: float = 0
 
-func update( player_velocity:Vector2 , player_on_floor:bool) -> void:
+func update( player_velocity:Vector2 , player_on_floor:bool , player_global_position: Vector2) -> void:
+	global_position = player_global_position
 	velocity = player_velocity
 	on_floor = player_on_floor
 

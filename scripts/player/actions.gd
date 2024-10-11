@@ -1,25 +1,16 @@
-extends Node2D
+extends Node
 
-@onready var hook_instance= preload("res://test stuf/Hook.tscn").instantiate()
-var is_hook_attached: bool = false
-var hook_position: Vector2 = Vector2.ZERO
-var length: float = 0.0
+var hook_scene: PackedScene = preload("res://scenes/entities/player/Hook.tscn")
+var hook_instance: Area2D
 
-func shoot_hook(global_position: Vector2) -> void:
+func shoot_hook(player_ref:CharacterBody2D) -> void:
 	if not hook_instance:
-		hook_instance.global_position = global_position
-		owner.add_child(hook_instance)
-		hook_instance.set_player(self)
-
-func attach_hook(hook_ref: Area2D , global_position: Vector2)->Dictionary:
-	length = floor(global_position.distance_to(hook_position))
-	return {
-		hook_position : hook_position,
-		length : length
-	} 
+		hook_instance = hook_scene.instantiate()
+		hook_instance.global_position = player_ref.global_position
+		player_ref.get_parent().add_child(hook_instance)
+		hook_instance.set_player(player_ref)
 
 func detach_hook() -> void:
-	is_hook_attached = false
 	if hook_instance:
 		hook_instance.queue_free()
 		hook_instance = null
