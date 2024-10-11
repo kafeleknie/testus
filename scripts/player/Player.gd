@@ -1,72 +1,78 @@
 extends CharacterBody2D
 
-const MAX_WALK_SPEED: float = 200
-const MAX_RUN_SPEED: float = 400
-const MOVE_STRENGTH_ON_FLOOR: float = 80
-const MOVE_STRENGTH_IN_AIR: float = 20
-const FRICTION_ON_FLOOR: float = 40
-const FRICTION_IN_AIR: float = 5
-const JUMP_STRENGTH: float = 500
-const COYOTE_TIME = 0.1 #100ms 
-const JUMP_BUFFER_TIME = 0.1 #100ms 
-
-var gravity = ProjectSettings.get_setting("physics/2d/default_gravity");
-
-var max_speed: float = MAX_WALK_SPEED
-var move_strength: float = MOVE_STRENGTH_ON_FLOOR
-var friction:float = FRICTION_ON_FLOOR
-var direction_vector: Vector2 = Vector2.ZERO
-var space_pressed: bool = false
+#GLOBAL
+@onready var BASIC_MOVEMENT = preload("res://scripts/player/basic_movement.gd").new()
+@onready var SWINGING = preload("res://scripts/player/swinging.gd").new()
+@onready var ACTIONS = preload("res://scripts/player/actions.gd").new()
 var on_floor: bool = false
-var coyote_time_counter: float = 0.0
-var jump_buffer_counter:float = 0.0
 
-func _physics_process(delta: float):
+#INPUTS
+var direction_vector: Vector2 = Vector2.ZERO
+var last_direction: float = 1
+var space_pressed: bool = false
+var dash_action: bool = false
+var hook_action: bool = false
+
+#----
+var is_hook_attached: bool = false
+var is_swinging: bool = false
+
+func _physics_process(delta: float) -> void:
 	on_floor = is_on_floor()
-	process_timers(delta)
 	handle_inputs()
-	if not on_floor:
-		velocity.y += gravity * delta
-		move_strength = MOVE_STRENGTH_IN_AIR
-		friction = FRICTION_IN_AIR
-	else:
-		move_strength = MOVE_STRENGTH_ON_FLOOR
-		friction = FRICTION_ON_FLOOR
+	handle_movement(delta)
 
-	if direction_vector.x != 0 and abs(velocity.x) <= max_speed:
-		velocity.x += direction_vector.x * move_strength
-	if velocity.x != 0:
-		velocity.x += friction if velocity.x < 0 else -friction
-
-	if abs(velocity.x) < move_strength and direction_vector.x == 0: # nie jestem fanem tej linijki ale bez niej czasami gracz sie nie zatrzymuje
-		velocity.x = 0
-
-	if space_pressed:
-		jump_buffer_counter = JUMP_BUFFER_TIME
-		if coyote_time_counter > 0:
-			jump()
-	if on_floor and jump_buffer_counter > 0:
-		jump()
+	if(hook_action):
+		if is_hook_attached:
+			ACTIONS.detach_hook()
+			is_hook_attached = false
+			is_swinging = false
+		else:
+			ACTIONS.shoot_hook(self)
 
 	move_and_slide()
 
 func handle_inputs():
 	direction_vector = Input.get_vector("left", "right", "up", "down")
 	space_pressed = Input.is_action_pressed("space")
-	if Input.is_action_pressed("sprint"):
-		max_speed = MAX_RUN_SPEED
+	dash_action = Input.is_action_pressed("dash")
+	hook_action =  Input.is_action_just_pressed("hook_action")
+
+	if direction_vector.x != 0:
+		last_direction = direction_vector.x
+
+func handle_movement(delta:float):
+	SWINGING.update(velocity,on_floor,global_position)
+	BASIC_MOVEMENT.update(velocity,on_floor,global_position)
+	BASIC_MOVEMENT.process_timers(delta,space_pressed)
+
+	if is_swinging:
+		handle_swinging(delta)
 	else:
-		max_speed = MAX_WALK_SPEED
+		handle_basic_movement(delta)
 
-func process_timers(delta: float):
-	if on_floor:
-		coyote_time_counter = COYOTE_TIME
-	if jump_buffer_counter > 0:
-		jump_buffer_counter -= delta
-	if coyote_time_counter > 0:
-		coyote_time_counter -= delta
+	if is_hook_attached:
+		global_position = SWINGING.restrict_player_distance()
+		if not SWINGING.should_swing():
+			is_swinging = false
+		elif not is_swinging:
+			is_swinging = true
+			SWINGING.start_swinging()
 
-func jump():
-	coyote_time_counter = 0.0
-	jump_buffer_counter = 0.0
-	velocity.y = -JUMP_STRENGTH
+func handle_basic_movement(delta:float):
+	if !on_floor:
+		BASIC_MOVEMENT.apply_gravity(delta)
+	BASIC_MOVEMENT.jump()
+	if dash_action:
+		BASIC_MOVEMENT.dash(last_direction)
+	BASIC_MOVEMENT.apply_movement(direction_vector.x)
+	velocity = BASIC_MOVEMENT.velocity
+
+func handle_swinging(delta: float):
+	SWINGING.handle_swinging(delta)
+	velocity = SWINGING.velocity
+
+func hook_attached(hook_ref:Area2D)->void:
+	var hook_position = hook_ref.global_position
+	SWINGING.set_hook_position(hook_position)
+	is_hook_attached = true
