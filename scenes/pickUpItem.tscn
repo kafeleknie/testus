@@ -1,0 +1,30 @@
+[gd_scene load_steps=7 format=3 uid="uid://5y0mldgyk5af"]
+
+[ext_resource type="Script" path="res://scripts/interact.gd" id="1_fmk3p"]
+[ext_resource type="Texture2D" uid="uid://cd5sg75hfy0j0" path="res://Art/Enemies/Bat.png" id="2_fo0ci"]
+[ext_resource type="Script" path="res://scripts/objectFunctionality.gd" id="2_umhdp"]
+[ext_resource type="Script" path="res://scenes/playerInventory.gd" id="3_vxkef"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xcxx8"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yh0jt"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_fmk3p")
+
+[node name="InteractableObject" type="Node2D" parent="."]
+script = ExtResource("2_umhdp")
+
+[node name="RigidBody2D" type="RigidBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+shape = SubResource("CircleShape2D_xcxx8")
+
+[node name="Sprite2D" type="Sprite2D" parent="RigidBody2D"]
+texture = ExtResource("2_fo0ci")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+script = ExtResource("3_vxkef")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+shape = SubResource("CircleShape2D_yh0jt")
