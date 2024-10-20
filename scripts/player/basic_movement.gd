@@ -29,6 +29,7 @@ const DASH_DURATION: float = 0.1
 const DASH_COOLDOWN: float = 1
 
 var is_dashing: bool = false
+var renew_dash: bool = false
 var dash_duration_counter: float = 0
 var dash_cooldown_counter: float = 0
 var dash_direction: float = 0
@@ -46,12 +47,13 @@ func process_timers(delta: float ,space_pressed: bool) -> void:
 
 	if dash_duration_counter > 0:
 		dash_duration_counter -= delta
-	if dash_cooldown_counter > 0:
+	if dash_cooldown_counter > 0 and renew_dash:
 		dash_cooldown_counter -= delta
 
 	if space_pressed:
 		jump_buffer_counter = JUMP_BUFFER_TIME
 	if on_floor:
+		renew_dash = true
 		coyote_time_counter = COYOTE_TIME
 
 func apply_gravity(delta: float ) -> void:
@@ -80,19 +82,25 @@ func apply_movement(direction: float) -> void:
 	if abs(velocity.x) < friction:
 		velocity.x = 0
 
-func jump() -> bool:
+func handle_jump_and_dash(direction:float , dash_action: bool) -> void:
 	if((on_floor or coyote_time_counter > 0) and jump_buffer_counter > 0):
-		velocity.y = -JUMP_STRENGTH
-		coyote_time_counter = 0.0
-		jump_buffer_counter = 0.0
-		return true
-	return false
+		jump()
+	if dash_action and is_dash_available():
+		dash(direction)
 
-func dash(direction:float) -> bool:
+func jump() -> void:
+	velocity.y = -JUMP_STRENGTH
+	coyote_time_counter = 0.0
+	jump_buffer_counter = 0.0
+
+func dash(direction:float) -> void:
+	dash_direction = direction
+	dash_cooldown_counter = DASH_COOLDOWN
+	dash_duration_counter = DASH_DURATION
+	is_dashing = true
+	renew_dash = false
+
+func is_dash_available()->bool:
 	if not is_dashing and dash_cooldown_counter <= 0:
-		dash_direction = direction
-		dash_cooldown_counter = DASH_COOLDOWN
-		dash_duration_counter = DASH_DURATION
-		is_dashing = true
 		return true
 	return false

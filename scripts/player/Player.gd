@@ -24,9 +24,7 @@ func _physics_process(delta: float) -> void:
 
 	if(hook_action):
 		if is_hook_attached:
-			ACTIONS.detach_hook()
-			is_hook_attached = false
-			is_swinging = false
+			detach_hook()
 		else:
 			ACTIONS.shoot_hook(self)
 
@@ -58,21 +56,28 @@ func handle_movement(delta:float):
 		elif not is_swinging:
 			is_swinging = true
 			SWINGING.start_swinging()
+		if on_floor:
+			detach_hook()
+
 
 func handle_basic_movement(delta:float):
 	if !on_floor:
 		BASIC_MOVEMENT.apply_gravity(delta)
-	BASIC_MOVEMENT.jump()
-	if dash_action:
-		BASIC_MOVEMENT.dash(last_direction)
+	BASIC_MOVEMENT.handle_jump_and_dash(last_direction,dash_action)
 	BASIC_MOVEMENT.apply_movement(direction_vector.x)
 	velocity = BASIC_MOVEMENT.velocity
 
 func handle_swinging(delta: float):
-	SWINGING.handle_swinging(delta)
+	SWINGING.handle_swinging(delta,direction_vector.x)
 	velocity = SWINGING.velocity
+
 
 func hook_attached(hook_ref:Area2D)->void:
 	var hook_position = hook_ref.global_position
 	SWINGING.set_hook_position(hook_position)
 	is_hook_attached = true
+
+func detach_hook():
+	ACTIONS.detach_hook()
+	is_hook_attached = false
+	is_swinging = false

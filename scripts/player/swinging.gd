@@ -1,6 +1,8 @@
 extends Node
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
+const MOVE_FORCE: float = 5
+
 var velocity: Vector2 = Vector2.ZERO
 var on_floor: bool = false
 var global_position: Vector2 = Vector2.ZERO
@@ -11,7 +13,6 @@ var angle: float = 0.0
 var acceleration: float = 0.0 
 var swing_velocity: float = 0.0
 
-#
 var hook_position: Vector2 = Vector2.ZERO
 var length: float = 0.0
 
@@ -45,11 +46,15 @@ func start_swinging() -> void:
 	)
 	velocity = buffer_vector * cos(velocity.angle_to(buffer_vector))
 
-func handle_swinging(delta: float) -> void:
+func handle_swinging(delta: float , direction:float) -> void:
 	var v_length= velocity.length()
 	angle = (global_position - hook_position).angle_to(Vector2.DOWN)
 	acceleration = (-gravity * sin(angle)) * delta 
-	swing_velocity = sign(swing_velocity) * v_length + acceleration 
+
+	swing_velocity = sign(swing_velocity) * v_length + acceleration + MOVE_FORCE * direction
 	swing_velocity *= dumping_factor
-	velocity.x = swing_velocity * cos(angle) 
-	velocity.y = -swing_velocity * sin(angle)
+
+	velocity = Vector2(
+		swing_velocity * cos(angle),
+		swing_velocity * -sin(angle)
+	)
