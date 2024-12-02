@@ -34,6 +34,16 @@ var dash_duration_counter: float = 0
 var dash_cooldown_counter: float = 0
 var dash_direction: float = 0
 
+#swinging properties
+var dumping_factor:float = 0.99
+var angle: float = 0.0
+var swing_acceleration: float = 0.0 
+var swing_velocity: float = 0.0
+
+#hook
+var hook_position: Vector2 = Vector2.ZERO
+var length: float = 0.0
+
 func update( player_velocity:Vector2 , player_on_floor:bool , player_global_position: Vector2) -> void:
 	global_position = player_global_position
 	velocity = player_velocity
